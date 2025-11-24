@@ -5,7 +5,7 @@ import sys
 import json
 import time
 
-HOST = '192.168.1.7'
+HOST = 'Seu ip aqui'
 PORT = 8080
 BUFFER_SIZE = 1024
 HEADER_SIZE = 4
