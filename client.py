@@ -5,7 +5,7 @@ import psutil
 import json
 import time
 
-HOST = '192.168.1.7'
+HOST = 'Coloque o IP do Servidor'
 PORT = 8080
 
 try:
