@@ -5,7 +5,7 @@ import psutil
 import json
 import time
 
-HOST = 'Coloque o IP do Servidor'
+HOST = '172.20.4.31'
 PORT = 8080
 
 try:
@@ -50,7 +50,7 @@ except Exception as e:
     print(f"Um erro ocorreu: {e}")
 
 finally:
-    #Passo 3: Fechar as conexoes
+    # Fechar as conexoes
     if client_socket:
         client_socket.close()
         print(f'Socket do cliente fechado!')

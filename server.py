@@ -48,7 +48,7 @@ def monitor_display():
                 print(f"  Memória Livre: {dados.get('mem_livre', 'N/A'):.2f} GB")
                 print("-" * 20)
 
-        # 3. Espera antes de atualizar a visualização
+        # Espera antes de atualizar a visualização
         time.sleep(10) # Atualiza a cada 10 segundos
 
 
