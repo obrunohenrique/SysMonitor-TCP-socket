@@ -29,7 +29,7 @@ python --version
 The client uses the psutil library to collect system metrics:
 
 ```
-pip install psutil
+pip install -r requirements.txt
 ```
 
 The server uses only Python’s standard library.
