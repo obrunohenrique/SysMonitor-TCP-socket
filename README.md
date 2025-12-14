@@ -1,170 +1,98 @@
-## 📘 Monitoring System – TCP Client/Server
+# SysMonitor: Socket & Middleware Architectures
 
-This project implements a simple performance-monitoring system using TCP sockets.
-Multiple machines can run the client, which collects CPU and memory metrics and sends them to a central server that displays the data in near real-time.
+Este projeto é um sistema de monitoramento de performance (CPU e Memória RAM) desenvolvido em Python. O objetivo principal deste repositório é demonstrar e comparar três arquiteturas de comunicação distintas para sistemas distribuídos: **TCP**, **UDP** e **Middleware (Message Broker)**.
 
-## 📂 Project Structure
+A aplicação consiste em agentes (Clientes) que coletam métricas da máquina local e as enviam para um monitor central (Servidor).
 
+## 📂 Estrutura do Projeto
+
+O projeto está organizado em módulos independentes:
+
+- **`tcp/`**: Implementação usando Sockets TCP (Conexão persistente/Stream).
+- **`udp/`**: Implementação usando Sockets UDP (Datagramas/Fire-and-forget).
+- **`middleware/`**: Implementação desacoplada usando RabbitMQ (Padrão Pub/Sub).
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Python 3.x**
+- **Psutil** (Coleta de métricas de hardware)
+- **Socket** (Biblioteca padrão para TCP/UDP)
+- **Pika** (Cliente Python para RabbitMQ)
+- **Docker** (Para execução do servidor RabbitMQ)
+
+---
+
+## 🚀 Guia de Instalação
+
+### 1. Clone o repositório
 ```
-/monitoring
-│── server.py   # TCP server that receives and displays metrics
-│── client.py   # Client that collects and sends metrics
-│── README.md 
-```
-
-## 🚀 1. Requirements
-
-Before running the project, make sure you have:
-
-### 🐍 Python 3.8+
-
-Check your version:
-
-```
-python --version
-```
-
-### 📦 Required Libraries
-
-The client uses the psutil library to collect system metrics:
-
-```
-pip install -r requirements.txt
+git clone [https://github.com/obrunohenrique/SysMonitor-socket-and-middleware.git](https://github.com/obrunohenrique/SysMonitor-socket-and-middleware.git)
+cd SysMonitor-socket-and-middleware
 ```
 
-The server uses only Python’s standard library.
+### 2. Configure o Ambiente Virtual
 
-## 🌐 2. Network Setup
-
-The system works on:
-
-- Local network (LAN)
-- Wi-Fi / Ethernet
-- Multiple machines
-- A single machine (localhost testing)
-
-### 🔍 Get the Server's IP Address
-
-You MUST use the IP of the computer running server.py.
-
-On Windows:
+(É recomendado usar um ambiente virtual para isolar as dependências).
 ```
-ipconfig
+Linux/Mac:
+python3 -m venv .venv
+source .venv/bin/activate
+
+Windows:
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-Look for:
-```
-IPv4 Address . . . : 192.168.x.x
-```
+### 3. Instale as Dependências
 
-On Linux / macOS:
-```
-ip a
-```
+```pip install -r requirements.txt```
 
-or
-```
-ifconfig
-```
 
-Use the IP belonging to your active network interface.
+### 💻 Como Rodar as Implementações?
+Abra dois terminais: um para rodar o Servidor e outro para o Cliente. Certifique-se de que o ambiente virtual (.venv) esteja ativado em ambos.
 
-## 🖥️ 3. Running the Server
-
-The server is configured to accept connections from any device in the LAN:
-
+#### 1. Implementação TCP (Confiabilidade)
+Nesta versão, o cliente estabelece uma conexão dedicada com o servidor.
 ```
-HOST = "0.0.0.0"
-PORT = 8080
-```
-
-▶ Start the server:
-```
+# Terminal 1 (Servidor)
+cd tcp
 python server.py
-```
 
-You should see:
-
-```
-Servidor Listening em: 0.0.0.0:8080
-Aguardando novas conexões...
-```
-
-The server automatically displays updated metrics every 10 seconds, including:
-
-- Client IP
-- CPU usage (overall + per core)
-- Memory total / used / free
-
-## 💻 4. Configuring and Running the Client
-
-Inside client.py, replace:
-
-```
-HOST = "Coloque o IP do Servidor"
-```
-
-with the actual server IP, for example:
-
-```
-HOST = "192.168.x.x"
-```
-
-The port remains:
-
-```
-PORT = 8080
-```
-
-▶ Start the client:
-```
+# Terminal 2 (Cliente)
+cd tcp
 python client.py
 ```
 
-Expected output:
-
+#### 2. Implementação UDP (Velocidade)
+Nesta versão, os dados são enviados sem garantia de entrega ou conexão estabelecida, priorizando a velocidade.
 ```
-Conexao estabelecida com 192.168.x.x:8080
-Dados enviados: 221 bytes.
-```
+# Terminal 1 (Servidor)
+cd udp
+python server.py
 
-The client automatically sends metrics every 5 seconds.
-
-## 🔄 5. Running Multiple Clients (Same LAN)
-
-Simply:
-
-Put the server’s IP in each client.
-
-Run client.py on each machine.
-
-The server will show entries like:
-
-```
-[192.168.1.10]
-  CPU Total: ...
-  Memory: ...
-
-[192.168.1.11]
-  CPU Total: ...
-  Memory: ...
+# Terminal 2 (Cliente)
+cd udp
+python client.py
 ```
 
-## 🛑 6. Common Errors & Fixes
+#### 3. Implementação Middleware (Escalabilidade)
 
-| Error                   | Cause                   | Solution                     |
-|-------------------------|--------------------------|------------------------------|
-| `ConnectionRefusedError` | Server not running       | Start `server.py` first      |
-| No data on server       | Wrong IP                 | Check with `ipconfig / ip a` |
-| Client stuck            | Firewall blocked         | Allow port 8080              |
-| JSON decode error       | Corrupted transmission   | Restart client               |
+Esta versão utiliza o RabbitMQ para desacoplar o cliente do servidor.
+
+Passo 1: Subir o RabbitMQ (Requer Docker)
+```
+docker run -d --name rabbitmq-monitor -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+(Opcional: Acesse http://localhost:15672 para ver o painel visual. Login: guest / Senha: guest)
 
 
+Passo 2: Rodar os Scripts
+```
+# Terminal 1 (Servidor/Subscriber)
+cd middleware
+python server.py
 
-## 🧹 7. Stopping the System
-
-Stop server: `Ctrl + C`
-
-Stop client: `Ctrl + C`
-
-Both scripts close sockets gracefully.
+# Terminal 2 (Cliente/Publisher)
+cd middleware
+python client.py
+```
